@@ -256,7 +256,6 @@ criterion = nn.CrossEntropyLoss()
 
 start = time.time()
 all_losses = []
-all_perplexities = []
 loss_avg = 0
 
 for epoch in range(1, n_epochs + 1):
@@ -273,9 +272,6 @@ for epoch in range(1, n_epochs + 1):
 
 plt.figure()
 plt.plot(all_losses)
-
-plt.figure()
-plt.plot(all_perplexities)
 
 chunk = random_chunk(500)
 prime_str, target_str = chunk[:251], chunk[251:]
