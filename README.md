@@ -30,9 +30,9 @@ Utilizing PyTorch framework for development. Using a NVIDIA GeForce GTX 1080 Ti 
 
 ...**Context** : In short, she sat, during the first visit, looking at Jane Fairfax with twofold complacency; the sense of pleasure and the sense of rendering justice, and was determining that she would dislike her no longer. 
 
-...**Generated**: *"And you might _pity, I do not see me all. It was dribured. I will only have forting Monseigneur in his good and conversation in a neither aloft in a known."
+...**Generated**: *'And you might _pity, I do not see me all. It was dribured. I will only have forting Monseigneur in his good and conversation in a neither aloft in a known.'
 
-"_Younse between what a horrible more cowfort of the carriage, burne, so I longed me many through a dream. For you
+'_Younse between what a horrible more cowfort of the carriage, burne, so I longed me many through a dream. For you
 shall I told them in a sho*
 
 **2. The Strange Case of Dr. Jekyll and Mr. Hyde - Robert Louis Stevenson**:
