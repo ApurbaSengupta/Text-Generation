@@ -16,3 +16,9 @@ Utilizing PyTorch framework for development. Using a NVIDIA GeForce GTX 1080 Ti 
 ...**Context** : The tumult of her mind, was now painfully great. She knew not how to support herself, and from actual weakness sat down andcried for half-an-hour. 
 
 ...**Generated**: *At elobor of a day--but the elmost Farkance were the grounds the day, let the part-accation, and her knees, and she had felt the other fellow for the ofference of some days which she sook in once down to the rising feeling dinner she in the water from most once enough to your deay so much on the hor*
+
+**2. Dracula - Bram Stoker**:
+
+...**Context** : To believe in things that you cannot. Let me illustrate. I heard once of an American who so defined faith: 'that faculty which enables us to believe things which we know to be untrue.' For one, I follow that man. 
+
+...**Generated**: *The rest each other point-hot of the earth, let she had defered the sentiment cask and to be prisoner enough to chood for it. He saw the forecast rew viious as a fair and of the past of the friend and carising now often the days are to erlive the more each of his life. He had inleight. "With my shoc*
