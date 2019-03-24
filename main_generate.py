@@ -273,14 +273,24 @@ for epoch in range(1, n_epochs + 1):
 plt.figure()
 plt.plot(all_losses)
 
-chunk = random_chunk(500)
-prime_str, target_str = chunk[:251], chunk[251:]
+# Training evaluation
+# Pride and Prejudice - Jane Austen
+print(generate("\nThe tumult of her mind, was now painfully great. She knew not how \
+to support herself, and from actual weakness sat down and cried for \
+half-an-hour. ", 300, temperature=0.8))
 
-gen_text, loss, f1, bleu = evaluate(target_str, prime_str, 250, temperature=0.8)
+# Dracula - Bram Stoker
+print(generate("\nTo believe in things that you cannot. Let me illustrate. I heard once \
+of an American who so defined faith: 'that faculty which enables us to \
+believe things which we know to be untrue.' For one, I follow that man. ", 300, temperature=0.8))
 
-print("\nLoss: ", loss, " F1: ", f1, " BLEU: ", bleu, "\n")
-print("\n", gen_text, "\n")
+# Outside evaluation
+# Emma - Jane Austen
+print(generate("\nIn short, she sat, during the first visit, looking at Jane Fairfax with \
+twofold complacency; the sense of pleasure and the sense of rendering \
+justice, and was determining that she would dislike her no longer.  ", 300, temperature=0.8))
 
-print(generate("\nI was very distraught. I called my friend ", 250, temperature=0.8))
-
-print(generate("\nI never wanted this to happen. But the ", 250, temperature=0.8))
+# The Strange Case of Dr. Jekyll and Mr. Hyde - Robert Louis Stevenson
+print(generate("\nPoole swung the axe over his shoulder; the blow shook the building, and \
+the red baize door leaped against the lock and hinges. A dismal \
+screech, as of mere animal terror, rang from the cabinet. ", 300, temperature=0.8))
