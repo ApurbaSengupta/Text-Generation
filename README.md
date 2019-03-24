@@ -7,7 +7,7 @@ Utilizing few English novels for training and evaluating the model.
 Utilizing PyTorch framework for development. Using a NVIDIA GeForce GTX 1080 Ti GPU machine to facilitate training of the model.
 
 
-                                              **Text generation examples**:
+**Text generation examples**:
 
 **From training novels**:
 
