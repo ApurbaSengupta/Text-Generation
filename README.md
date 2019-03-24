@@ -28,12 +28,9 @@ Utilizing PyTorch framework for development. Using a NVIDIA GeForce GTX 1080 Ti 
 
 **1. Emma - Jane Austen**:
 
-...**Context** : In short, she sat, during the first visit, looking at Jane Fairfax with twofold complacency; the sense of pleasure and the sense of rendering justice, and was determining that she would dislike her no longer. 
+...**Context** : During his present short stay, Emma had barely seen him; but just enough to feel that the first meeting was over, and to give her the impression of his not being improved by the mixture of pique and pretension, now spread over his air. 
 
-...**Generated**: *'And you might _pity, I do not see me all. It was dribured. I will only have forting Monseigneur in his good and conversation in a neither aloft in a known.'
-
-'_Younse between what a horrible more cowfort of the carriage, burne, so I longed me many through a dream. For you
-shall I told them in a sho*
+...**Generated**: *_Miss Lorry door on the end in Brindoor I well, you are so him to be excelled the evening of the trance of a face. What you will take the company and I am inquiries in a long mates were so into the gnide when days went to me to fright it so well; and if the papers who even the being to see me to be*
 
 **2. The Strange Case of Dr. Jekyll and Mr. Hyde - Robert Louis Stevenson**:
 
