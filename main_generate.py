@@ -32,7 +32,7 @@ chunk_len = 250
 def random_chunk(chunk_len):
     start_index = random.randint(0, file_len - chunk_len)
     end_index = start_index + chunk_len + 1
-    return file[start_index:end_index]
+    return all_files[start_index:end_index]
 
 class TextGenerate(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, n_layers=1, bi=True):
@@ -256,7 +256,6 @@ criterion = nn.CrossEntropyLoss()
 
 start = time.time()
 all_losses = []
-all_perplexities = []
 loss_avg = 0
 
 for epoch in range(1, n_epochs + 1):
@@ -274,9 +273,6 @@ for epoch in range(1, n_epochs + 1):
 plt.figure()
 plt.plot(all_losses)
 
-plt.figure()
-plt.plot(all_perplexities)
-
 chunk = random_chunk(500)
 prime_str, target_str = chunk[:251], chunk[251:]
 
@@ -285,6 +281,6 @@ gen_text, loss, f1, bleu = evaluate(target_str, prime_str, 250, temperature=0.8)
 print("\nLoss: ", loss, " F1: ", f1, " BLEU: ", bleu, "\n")
 print("\n", gen_text, "\n")
 
-print(generate("\nI have written to my old friend ", 250, temperature=0.8))
+print(generate("\nI was very distraught. I called my friend ", 250, temperature=0.8))
 
-print(generate("\nI wish to walk among the living and ", 250, temperature=0.8))
+print(generate("\nI never wanted this to happen. But the ", 250, temperature=0.8))
