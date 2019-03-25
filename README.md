@@ -7,8 +7,8 @@ Utilizing few English novels for training and evaluating the model.
 Utilizing PyTorch framework for development. Using a NVIDIA GeForce GTX 1080 Ti GPU machine to facilitate training of the model.
 
 <p align="center">
-  <img src="https://github.com/ApurbaSengupta/Text-Generation/blob/master/results/loss.png" height="400" width="400"><br>
-  <font size=3>Loss v/s Epochs</font><br>
+  <img src="https://github.com/ApurbaSengupta/Text-Generation/blob/master/results/loss.png" height="300" width="350"><br>
+  <font size=3>Training Loss v/s Epochs</font><br>
 </p>
 
 ## Text generation examples
