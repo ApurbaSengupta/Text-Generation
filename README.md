@@ -13,7 +13,7 @@ Utilizing PyTorch framework for development. Using a NVIDIA GeForce GTX 1080 Ti 
 
 ## Text generation examples
 
-**From training novels**:
+### From training novels:
 
 **1. Pride and Prejudice - Jane Austen**:
 
