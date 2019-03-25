@@ -28,7 +28,7 @@ Utilizing PyTorch framework for development. Using a NVIDIA GeForce GTX 1080 Ti 
 ...**Generated**: *The rest each other point-hot of the earth, let she had defered the sentiment cask and to be prisoner enough to chood for it. He saw the forecast rew viious as a fair and of the past of the friend and carising now often the days are to erlive the more each of his life. He had inleight. "With my shoc*
 
 
-**From non-training novels (but same author or same genre)**:
+### From non-training novels (but same author or same genre):
 
 **1. Emma - Jane Austen**:
 
