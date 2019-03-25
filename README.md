@@ -8,7 +8,7 @@ Utilizing PyTorch framework for development. Using a NVIDIA GeForce GTX 1080 Ti 
 
 <p align="center">
   <font size=7><b>Loss v/s Epochs</b></font><br>
-  <img src="https://github.com/ApurbaSengupta/Text-Generation/tree/master/results/loss.png" height="100" width="100">
+  <img src="https://github.com/ApurbaSengupta/Text-Generation/tree/master/results/loss.png" height="200" width="200">
 </p>
 
 ## Text generation examples
