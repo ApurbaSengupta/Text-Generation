@@ -7,8 +7,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
-from sklearn.metrics import f1_score
-from nltk.translate.bleu_score import sentence_bleu
 import time, math
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
@@ -49,7 +47,7 @@ class TextGenerate(nn.Module):
           self.decoder = nn.Linear(hidden_size*2, output_size)
         else:
           self.decoder = nn.Linear(hidden_size, output_size)
-        self.dropout = nn.Dropout(0.1)
+        self.dropout = nn.Dropout(0.3)
         self.out = nn.Linear(output_size, output_size)
     
     def forward(self, input, hidden, cell):
@@ -111,8 +109,7 @@ def evaluate(target_str, prime_str='A', predict_len=100, temperature=0.8):
           hidden, cell = states[0], states[1]
           
     inp = prime_input[-1]
-    loss = 0
-    predicted_next = ''
+    loss = 0.
     
     for p in range(predict_len):
         output, states = decoder(inp, hidden, cell)
@@ -135,28 +132,19 @@ def evaluate(target_str, prime_str='A', predict_len=100, temperature=0.8):
         predicted_char = all_characters[top_i]
         predicted += predicted_char
         inp = char_tensor(predicted_char)
-        predicted_next += predicted_char
-    
-    targ = char_tensor(target_str).cpu().numpy()
-    pred = char_tensor(predicted_next).cpu().numpy()
 
     loss_tot = total_loss(loss, predict_len)
-    f1 = F1_score(targ, pred)
-    bleu = BLEU_score([list(target_str)], list(predicted_next))
+    perplexity = perplexity_score(loss_tot)
 
-    return predicted, loss_tot, f1, bleu
+    return predicted, loss_tot, perplexity
 
 def total_loss(loss, predict_len):
     loss_tot = loss.cpu().item()/predict_len
     return loss_tot
 
-def F1_score(target, predicted):
-    f1 = f1_score(target, predicted, average='micro')
-    return f1
-
-def BLEU_score(target, predicted):
-    bleu = sentence_bleu(target, predicted, weights=(0, 0.333, 0.333, 0.333))
-    return bleu        
+def perplexity_score(loss):
+    perplexity = 2**loss
+    return perplexity      
 
 def time_since(since):
     s = time.time() - since
@@ -272,8 +260,18 @@ for epoch in range(1, n_epochs + 1):
 
 plt.figure()
 plt.plot(all_losses)
+plt.show()
 
 # Training evaluation
+
+chunk = random_chunk(500)
+prime_str, target_str = chunk[:251], chunk[251:]
+
+gen_text, loss, perplexity = evaluate(target_str, prime_str, 250, temperature=0.8)
+
+print("\nLoss: ", loss, " Perplexity:" , perplexity, "\n")
+print("\n", gen_text, "\n")
+
 # Pride and Prejudice - Jane Austen
 print(generate("\nThe tumult of her mind, was now painfully great. She knew not how \
 to support herself, and from actual weakness sat down and cried for \
@@ -286,11 +284,12 @@ believe things which we know to be untrue.' For one, I follow that man. ", 300, 
 
 # Outside evaluation
 # Emma - Jane Austen
-print(generate("\nIn short, she sat, during the first visit, looking at Jane Fairfax with \
-twofold complacency; the sense of pleasure and the sense of rendering \
-justice, and was determining that she would dislike her no longer.  ", 300, temperature=0.8))
+print(generate("\nDuring his present short stay, Emma had barely seen him; but just enough \
+to feel that the first meeting was over, and to give her the impression \
+of his not being improved by the mixture of pique and pretension, now \
+spread over his air.  ", 300, temperature=0.8))
 
-# The Strange Case of Dr. Jekyll and Mr. Hyde - Robert Louis Stevenson
+# The Strange Case Of Dr. Jekyll And Mr. Hyde - Robert Louis Stevenson
 print(generate("\nPoole swung the axe over his shoulder; the blow shook the building, and \
 the red baize door leaped against the lock and hinges. A dismal \
 screech, as of mere animal terror, rang from the cabinet. ", 300, temperature=0.8))
