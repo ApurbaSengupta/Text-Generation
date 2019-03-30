@@ -15,7 +15,7 @@ The reduction in training loss against number of epochs the model is trained for
 </p>
 <br>
 
-The pre-trained model is available as "model_generate.pt".
+The trained model is available as "model_generate.pt".
 
 
 ## Text generation examples
