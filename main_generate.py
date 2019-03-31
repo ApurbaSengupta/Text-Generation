@@ -7,6 +7,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
+from torch.nn import functional as F
 import time, math
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
@@ -29,13 +30,13 @@ if torch.cuda.is_available():
 
 chunk_len = 250
 
-# get random chunk of data
+# get a random chunk of data of length 'chunk_len'
 def random_chunk(chunk_len):
     start_index = random.randint(0, file_len - chunk_len)
     end_index = start_index + chunk_len + 1
     return all_files[start_index:end_index]
 
- # main model class
+# main model class
 class TextGenerate(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, n_layers=1, bi=True):
         super(TextGenerate, self).__init__()
@@ -51,15 +52,37 @@ class TextGenerate(nn.Module):
           self.decoder = nn.Linear(hidden_size*2, output_size)
         else:
           self.decoder = nn.Linear(hidden_size, output_size)
-        self.dropout = nn.Dropout(0.3)
-        self.out = nn.Linear(output_size, output_size)
+        self.out = nn.Linear(output_size, output_size)  
+        self.dropout = nn.Dropout(0.1)
     
     def forward(self, input, hidden, cell):
+
+        # Encoder
         input = self.encoder(input.view(1, -1))
+        input = self.dropout(input)
         output, states = self.lstm(input.view(1, 1, -1), (hidden, cell))
-        output = self.decoder(output.view(1, -1))
+        output = output.permute(1, 0, 2)
+
+        # Attention
+        if self.bi:
+          out1, out2 = output[:,:,:self.hidden_size], output[:,:,self.hidden_size:]
+          h1, h2 = states[0][states[0].size()[0] - 2,:,:], states[0][states[0].size()[0] - 1,:,:]
+          attn_wts_1 = F.softmax(torch.bmm(out1, h1.unsqueeze(2)).squeeze(2), 1)
+          attn_wts_2 = F.softmax(torch.bmm(out2, h2.unsqueeze(2)).squeeze(2), 1)
+          attn_1 = torch.bmm(out1.transpose(1, 2), attn_wts_1.unsqueeze(2)).squeeze(2)
+          attn_2 = torch.bmm(out2.transpose(1, 2), attn_wts_2.unsqueeze(2)).squeeze(2)
+          attn = torch.cat((attn_1, attn_2), 1)
+
+        else:
+          h = states.squeeze(0)
+          attn_wts = F.softmax(torch.bmm(output, h.unsqueeze(2)).squeeze(2), 1)
+          attn = torch.bmm(output.transpose(1, 2), attn_wts.unsqueeze(2)).squeeze(2)
+        
+        # Decoder
+        output = self.decoder(attn)
         output = self.dropout(output)
         output = self.out(output)
+
         return output, states
 
     def init_hidden(self):
@@ -83,7 +106,7 @@ def char_tensor(string):
       tensor = tensor.cuda()
     return Variable(tensor)
 
-# get random train data
+# get random training data
 def random_training_set(chunk_len=250):    
     chunk = random_chunk(chunk_len)
     inp = char_tensor(chunk[:-1])
@@ -92,11 +115,11 @@ def random_training_set(chunk_len=250):
 
 # evaluate model
 def evaluate(target_str, prime_str='A', predict_len=100, temperature=0.8):
-    decoder.load_state_dict(torch.load('./model_generate.pt'))
-    decoder.eval()
+    model.load_state_dict(torch.load('./model_generate.pt'))
+    model.eval()
     
-    hidden = decoder.init_hidden()
-    cell = decoder.init_cell()
+    hidden = model.init_hidden()
+    cell = model.init_cell()
     
     if use_cuda:
       hidden = hidden.cuda()
@@ -107,7 +130,7 @@ def evaluate(target_str, prime_str='A', predict_len=100, temperature=0.8):
 
     # use priming string to "build up" hidden state
     for p in range(len(prime_str) - 1):
-        _, states = decoder(prime_input[p], hidden, cell)
+        _, states = model(prime_input[p], hidden, cell)
         
         if use_cuda:
           hidden, cell = states[0].cuda(), states[1].cuda()
@@ -118,7 +141,7 @@ def evaluate(target_str, prime_str='A', predict_len=100, temperature=0.8):
     loss = 0.
     
     for p in range(predict_len):
-        output, states = decoder(inp, hidden, cell)
+        output, states = model(inp, hidden, cell)
         
         if use_cuda:
           output = output.cuda()
@@ -144,12 +167,12 @@ def evaluate(target_str, prime_str='A', predict_len=100, temperature=0.8):
 
     return predicted, loss_tot, perplexity
 
-# define loss function
+# get loss
 def total_loss(loss, predict_len):
     loss_tot = loss.cpu().item()/predict_len
     return loss_tot
 
-# define perplexity
+# get perplexity
 def perplexity_score(loss):
     perplexity = 2**loss
     return perplexity      
@@ -163,20 +186,20 @@ def time_since(since):
 
 # train model
 def train(inp, target):
-    decoder.train()
+    model.train()
     target.unsqueeze_(-1)
-    hidden = decoder.init_hidden()
-    cell = decoder.init_cell()
+    hidden = model.init_hidden()
+    cell = model.init_cell()
     
     if use_cuda:
       hidden = hidden.cuda()
       cell = cell.cuda()
     
-    decoder.zero_grad()
+    model.zero_grad()
     loss = 0
 
     for c in range(chunk_len):
-        output, states = decoder(inp[c], hidden, cell)
+        output, states = model(inp[c], hidden, cell)
         if use_cuda:
           output = output.cuda()
           hidden, cell = states[0].cuda(), states[1].cuda()
@@ -185,21 +208,22 @@ def train(inp, target):
         loss += criterion(output, target[c])
 
     loss.backward()
-    decoder_optimizer.step()
+    model_optimizer.step()
     
-    torch.save(decoder.state_dict(), './model_generate.pt')
+    torch.save(model.state_dict(), './model_generate.pt')
     
     loss_tot = total_loss(loss, chunk_len)
+    perplexity = perplexity_score(loss_tot)
 
-    return loss_tot
+    return loss_tot, perplexity
 
-# generate text
+# generate text given context
 def generate(prime_str='A', predict_len=100, temperature=0.8):
-    decoder.load_state_dict(torch.load('./model_generate.pt'))
-    decoder.eval()
+    model.load_state_dict(torch.load('./model_generate.pt'))
+    model.eval()
     
-    hidden = decoder.init_hidden()
-    cell = decoder.init_cell()
+    hidden = model.init_hidden()
+    cell = model.init_cell()
     
     if use_cuda:
       hidden = hidden.cuda()
@@ -210,7 +234,7 @@ def generate(prime_str='A', predict_len=100, temperature=0.8):
 
     # use priming string to "build up" hidden state
     for p in range(len(prime_str) - 1):
-        _, states = decoder(prime_input[p], hidden, cell)
+        _, states = model(prime_input[p], hidden, cell)
         
         if use_cuda:
           hidden, cell = states[0].cuda(), states[1].cuda()
@@ -220,7 +244,7 @@ def generate(prime_str='A', predict_len=100, temperature=0.8):
     inp = prime_input[-1]
     
     for p in range(predict_len):
-        output, states = decoder(inp, hidden, cell)
+        output, states = model(inp, hidden, cell)
         
         if use_cuda:
           output = output.cuda()
@@ -239,71 +263,84 @@ def generate(prime_str='A', predict_len=100, temperature=0.8):
     
     return predicted
 
-n_epochs = 25000
-print_every = 2500
-plot_every = 250
-hidden_size = 100
-n_layers = 2
-lr = 0.0005
-bi = True
+# main
+if __name__ == "__main__":
 
-decoder = TextGenerate(n_characters, hidden_size, n_characters, n_layers, bi)
-if use_cuda:
-  decoder = decoder.cuda()
-decoder_optimizer = torch.optim.Adam(decoder.parameters(), lr=lr)
-criterion = nn.CrossEntropyLoss()
+    n_epochs = 5000
+    print_every = 500
+    plot_every = 20
+    hidden_size = 100
+    n_layers = 2
+    lr = 0.0005
+    bi = True
 
-start = time.time()
-all_losses = []
-loss_avg = 0
+    # define model
+    model = TextGenerate(n_characters, hidden_size, n_characters, n_layers, bi)
+    if use_cuda:
+      model = model.cuda()
+    model_optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    criterion = nn.CrossEntropyLoss()
 
-# training
-for epoch in range(1, n_epochs + 1):
-  
-    loss = train(*random_training_set(chunk_len))
-    loss_avg += loss
+    # train the model
+    start = time.time()
+    all_losses = []
+    all_perplexities = []
+    loss_avg = 0.
+    perplexity_avg = 0.
 
-    if epoch % print_every == 0:
-        print('[%s (%d %d%%) %.4f]' % (time_since(start), epoch, epoch / n_epochs * 100, loss))
+    for epoch in range(1, n_epochs + 1):
+      
+        loss, perplexity = train(*random_training_set(chunk_len))
+        loss_avg += loss
+        perplexity_avg += perplexity
 
-    if epoch % plot_every == 0:
-        all_losses.append(loss_avg / plot_every)
-        loss_avg = 0
+        if epoch % print_every == 0:
+            print('[%s (%d %d%%) %.4f %.4f]' % (time_since(start), epoch, epoch / n_epochs * 100, loss, perplexity))
 
-plt.figure()
-plt.plot(all_losses)
-plt.show()
+        if epoch % plot_every == 0:
+            all_losses.append(loss_avg / plot_every)
+            all_perplexities.append(perplexity_avg / plot_every)
+            loss_avg = 0.
+            perplexity_avg = 0.
 
-# evaluation
-chunk = random_chunk(500)
-prime_str, target_str = chunk[:251], chunk[251:]
+    plt.figure()
+    plt.plot(all_losses)
+    plt.show()
 
-gen_text, loss, perplexity = evaluate(target_str, prime_str, 250, temperature=0.8)
+    plt.figure()
+    plt.plot(all_perplexities)
+    plt.show()
 
-print("\nLoss: ", loss, " Perplexity:" , perplexity, "\n")
-print("\n", gen_text, "\n")
+    # evaluation
+    chunk = random_chunk(500)
+    prime_str, target_str = chunk[:251], chunk[251:]
 
-# training evaluation
+    gen_text, loss, perplexity = evaluate(target_str, prime_str, 250, temperature=0.8)
 
-# Pride and Prejudice - Jane Austen
-print(generate("\nThe tumult of her mind, was now painfully great. She knew not how \
-to support herself, and from actual weakness sat down and cried for \
-half-an-hour. ", 300, temperature=0.8))
+    print("\nLoss: ", loss, " Perplexity:" , perplexity, "\n")
+    print("\n", gen_text, "\n")
 
-# Dracula - Bram Stoker
-print(generate("\nTo believe in things that you cannot. Let me illustrate. I heard once \
-of an American who so defined faith: 'that faculty which enables us to \
-believe things which we know to be untrue.' For one, I follow that man. ", 300, temperature=0.8))
+    # training evaluation
 
-# outside evaluation
+    # Pride and Prejudice - Jane Austen
+    print(generate("\nThe tumult of her mind, was now painfully great. She knew not how \
+    to support herself, and from actual weakness sat down and cried for \
+    half-an-hour. ", 300, temperature=0.8))
 
-# Emma - Jane Austen
-print(generate("\nDuring his present short stay, Emma had barely seen him; but just enough \
-to feel that the first meeting was over, and to give her the impression \
-of his not being improved by the mixture of pique and pretension, now \
-spread over his air.  ", 300, temperature=0.8))
+    # Dracula - Bram Stoker
+    print(generate("\nTo believe in things that you cannot. Let me illustrate. I heard once \
+    of an American who so defined faith: 'that faculty which enables us to \
+    believe things which we know to be untrue.' For one, I follow that man. ", 300, temperature=0.8))
 
-# The Strange Case Of Dr. Jekyll And Mr. Hyde - Robert Louis Stevenson
-print(generate("\nPoole swung the axe over his shoulder; the blow shook the building, and \
-the red baize door leaped against the lock and hinges. A dismal \
-screech, as of mere animal terror, rang from the cabinet. ", 300, temperature=0.8))
+    # outside evaluation
+    
+    # Emma - Jane Austen
+    print(generate("\nDuring his present short stay, Emma had barely seen him; but just enough \
+    to feel that the first meeting was over, and to give her the impression \
+    of his not being improved by the mixture of pique and pretension, now \
+    spread over his air.  ", 300, temperature=0.8))
+
+    # The Strange Case Of Dr. Jekyll And Mr. Hyde - Robert Louis Stevenson
+    print(generate("\nPoole swung the axe over his shoulder; the blow shook the building, and \
+    the red baize door leaped against the lock and hinges. A dismal \
+    screech, as of mere animal terror, rang from the cabinet. ", 300, temperature=0.8))
