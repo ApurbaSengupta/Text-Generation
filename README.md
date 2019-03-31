@@ -1,19 +1,12 @@
 # Text-Generation
 
-A LSTM-based deep neural language model to generate text sequences character-by-character, given a context sequence of text.
+An attention-based deep neural language model using biidrectional LSTMs to generate text sequences character-by-character, given a context sequence of text.
 
 Utilized few English novels for training and evaluating the model.
 
 Utilized PyTorch framework for development. Used a NVIDIA GeForce GTX 1080 Ti GPU machine to facilitate training of the model.
 
-The reduction in training loss against number of epochs the model is trained for is shown below. The model achieves an average test perplexity of approximately 96:
-
-<br>
-<p align="center">
-  <img src="https://github.com/ApurbaSengupta/Text-Generation/blob/master/results/loss.png" height="300" width="350"><br>
-  <font size=3>Training Loss v/s Epochs</font><br>
-</p>
-<br>
+The reduction in training loss against number of epochs the model is trained for is shown below. The model achieves an average validation perplexity of approximately 58.
 
 The trained model is available as "model_generate.pt".
 
