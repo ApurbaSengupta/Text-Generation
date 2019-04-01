@@ -57,14 +57,13 @@ class TextGenerate(nn.Module):
         self.dropout = nn.Dropout(0.1)
     
     def forward(self, input, hidden, cell):
-
-        # Encoder
+        # encoder
         input = self.encoder(input.view(1, -1))
         input = self.dropout(input)
         output, states = self.lstm(input.view(1, 1, -1), (hidden, cell))
         output = output.permute(1, 0, 2)
 
-        # Attention
+        # attention
         if self.bi:
           out1, out2 = output[:,:,:self.hidden_size], output[:,:,self.hidden_size:]
           h1, h2 = states[0][states[0].size()[0] - 2,:,:], states[0][states[0].size()[0] - 1,:,:]
@@ -73,13 +72,12 @@ class TextGenerate(nn.Module):
           attn_1 = torch.bmm(out1.transpose(1, 2), attn_wts_1.unsqueeze(2)).squeeze(2)
           attn_2 = torch.bmm(out2.transpose(1, 2), attn_wts_2.unsqueeze(2)).squeeze(2)
           attn = torch.cat((attn_1, attn_2), 1)
-
         else:
           h = states.squeeze(0)
           attn_wts = F.softmax(torch.bmm(output, h.unsqueeze(2)).squeeze(2), 1)
           attn = torch.bmm(output.transpose(1, 2), attn_wts.unsqueeze(2)).squeeze(2)
         
-        # Decoder
+        # decoder
         output = self.decoder(attn)
         output = self.dropout(output)
         output = self.out(output)
@@ -266,7 +264,6 @@ def generate(prime_str='A', predict_len=100, temperature=0.8):
 
 # main
 if __name__ == "__main__":
-
     n_epochs = 10000
     print_every = 1000
     plot_every = 100
