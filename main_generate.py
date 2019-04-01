@@ -28,6 +28,7 @@ use_cuda = False
 if torch.cuda.is_available():
   use_cuda = True
 
+# define length of string to consider while training
 chunk_len = 250
 
 # get a random chunk of data of length 'chunk_len'
@@ -266,9 +267,9 @@ def generate(prime_str='A', predict_len=100, temperature=0.8):
 # main
 if __name__ == "__main__":
 
-    n_epochs = 5000
-    print_every = 500
-    plot_every = 20
+    n_epochs = 10000
+    print_every = 1000
+    plot_every = 100
     hidden_size = 100
     n_layers = 2
     lr = 0.0005
@@ -281,43 +282,47 @@ if __name__ == "__main__":
     model_optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     criterion = nn.CrossEntropyLoss()
 
-    # train the model
-    start = time.time()
-    all_losses = []
-    all_perplexities = []
-    loss_avg = 0.
-    perplexity_avg = 0.
+    # # train the model
+    # start = time.time()
+    # all_losses = []
+    # all_perplexities = []
+    # loss_avg = 0.
+    # perplexity_avg = 0.
 
-    for epoch in range(1, n_epochs + 1):
+    # for epoch in range(1, n_epochs + 1):
       
-        loss, perplexity = train(*random_training_set(chunk_len))
-        loss_avg += loss
-        perplexity_avg += perplexity
+    #     loss, perplexity = train(*random_training_set(chunk_len))
+    #     loss_avg += loss
+    #     perplexity_avg += perplexity
 
-        if epoch % print_every == 0:
-            print('[%s (%d %d%%) %.4f %.4f]' % (time_since(start), epoch, epoch / n_epochs * 100, loss, perplexity))
+    #     if epoch % print_every == 0:
+    #         print('[%s taken (%d epochs %d%% trained) Loss: %.4f Perplexity: %.4f]' % (time_since(start), epoch, epoch / n_epochs * 100, loss, perplexity))
 
-        if epoch % plot_every == 0:
-            all_losses.append(loss_avg / plot_every)
-            all_perplexities.append(perplexity_avg / plot_every)
-            loss_avg = 0.
-            perplexity_avg = 0.
+    #     if epoch % plot_every == 0:
+    #         all_losses.append(loss_avg / plot_every)
+    #         all_perplexities.append(perplexity_avg / plot_every)
+    #         loss_avg = 0.
+    #         perplexity_avg = 0.
 
-    plt.figure()
-    plt.plot(all_losses)
-    plt.show()
+    # plt.figure()
+    # plt.plot(all_losses)
+    # plt.show()
 
-    plt.figure()
-    plt.plot(all_perplexities)
-    plt.show()
+    # plt.figure()
+    # plt.plot(all_perplexities)
+    # plt.show()
 
     # evaluation
-    chunk = random_chunk(500)
-    prime_str, target_str = chunk[:251], chunk[251:]
+    l = 0.
+    p = 0.
+    for i in range(500):
+      chunk = random_chunk(500)
+      prime_str, target_str = chunk[:251], chunk[251:]
 
-    gen_text, loss, perplexity = evaluate(target_str, prime_str, 250, temperature=0.8)
-
-    print("\nLoss: ", loss, " Perplexity:" , perplexity, "\n")
+      gen_text, loss, perplexity = evaluate(target_str, prime_str, 250, temperature=0.8)
+      l += loss
+      p += perplexity
+    print("\nLoss: ", l/500, " Perplexity:" , p/500, "\n")
     print("\n", gen_text, "\n")
 
     # training evaluation
@@ -333,7 +338,7 @@ if __name__ == "__main__":
     believe things which we know to be untrue.' For one, I follow that man. ", 300, temperature=0.8))
 
     # outside evaluation
-    
+
     # Emma - Jane Austen
     print(generate("\nDuring his present short stay, Emma had barely seen him; but just enough \
     to feel that the first meeting was over, and to give her the impression \
