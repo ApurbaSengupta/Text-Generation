@@ -282,70 +282,57 @@ if __name__ == "__main__":
     model_optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     criterion = nn.CrossEntropyLoss()
 
-    # # train the model
-    # start = time.time()
-    # all_losses = []
-    # all_perplexities = []
-    # loss_avg = 0.
-    # perplexity_avg = 0.
+    # train the model
+    start = time.time()
+    all_losses = []
+    all_perplexities = []
+    loss_avg = 0.
+    perplexity_avg = 0.
 
-    # for epoch in range(1, n_epochs + 1):
+    for epoch in range(1, n_epochs + 1):
       
-    #     loss, perplexity = train(*random_training_set(chunk_len))
-    #     loss_avg += loss
-    #     perplexity_avg += perplexity
+        loss, perplexity = train(*random_training_set(chunk_len))
+        loss_avg += loss
+        perplexity_avg += perplexity
 
-    #     if epoch % print_every == 0:
-    #         print('[%s taken (%d epochs %d%% trained) Loss: %.4f Perplexity: %.4f]' % (time_since(start), epoch, epoch / n_epochs * 100, loss, perplexity))
+        if epoch % print_every == 0:
+            print('[%s taken (%d epochs %d%% trained) Loss: %.4f Perplexity: %.4f]' % (time_since(start), epoch, epoch / n_epochs * 100, loss, perplexity))
 
-    #     if epoch % plot_every == 0:
-    #         all_losses.append(loss_avg / plot_every)
-    #         all_perplexities.append(perplexity_avg / plot_every)
-    #         loss_avg = 0.
-    #         perplexity_avg = 0.
+        if epoch % plot_every == 0:
+            all_losses.append(loss_avg / plot_every)
+            all_perplexities.append(perplexity_avg / plot_every)
+            loss_avg = 0.
+            perplexity_avg = 0.
 
-    # plt.figure()
-    # plt.plot(all_losses)
-    # plt.show()
+    plt.figure()
+    plt.plot(all_losses)
+    plt.show()
 
-    # plt.figure()
-    # plt.plot(all_perplexities)
-    # plt.show()
+    plt.figure()
+    plt.plot(all_perplexities)
+    plt.show()
 
     # evaluation
-    l = 0.
-    p = 0.
-    for i in range(500):
-      chunk = random_chunk(500)
-      prime_str, target_str = chunk[:251], chunk[251:]
+    chunk = random_chunk(500)
+    prime_str, target_str = chunk[:251], chunk[251:]
 
-      gen_text, loss, perplexity = evaluate(target_str, prime_str, 250, temperature=0.8)
-      l += loss
-      p += perplexity
-    print("\nLoss: ", l/500, " Perplexity:" , p/500, "\n")
+    gen_text, loss, perplexity = evaluate(target_str, prime_str, 250, temperature=0.8)
+   
+    print("\nLoss: ", loss, " Perplexity:" , perplexity, "\n")
     print("\n", gen_text, "\n")
 
     # training evaluation
 
     # Pride and Prejudice - Jane Austen
-    print(generate("\nThe tumult of her mind, was now painfully great. She knew not how \
-    to support herself, and from actual weakness sat down and cried for \
-    half-an-hour. ", 300, temperature=0.8))
+    print(generate("\nThe tumult of her mind, was now painfully great. She knew not how to support herself, and from actual weakness sat down and cried for half-an-hour. ", 300, temperature=0.8))
 
     # Dracula - Bram Stoker
-    print(generate("\nTo believe in things that you cannot. Let me illustrate. I heard once \
-    of an American who so defined faith: 'that faculty which enables us to \
-    believe things which we know to be untrue.' For one, I follow that man. ", 300, temperature=0.8))
+    print(generate("\nTo believe in things that you cannot. Let me illustrate. I heard once of an American who so defined faith: 'that faculty which enables us to believe things which we know to be untrue.' For one, I follow that man. ", 300, temperature=0.8))
 
     # outside evaluation
 
     # Emma - Jane Austen
-    print(generate("\nDuring his present short stay, Emma had barely seen him; but just enough \
-    to feel that the first meeting was over, and to give her the impression \
-    of his not being improved by the mixture of pique and pretension, now \
-    spread over his air.  ", 300, temperature=0.8))
+    print(generate("\nDuring his present short stay, Emma had barely seen him; but just enough to feel that the first meeting was over, and to give her the impression of his not being improved by the mixture of pique and pretension, now spread over his air.  ", 300, temperature=0.8))
 
     # The Strange Case Of Dr. Jekyll And Mr. Hyde - Robert Louis Stevenson
-    print(generate("\nPoole swung the axe over his shoulder; the blow shook the building, and \
-    the red baize door leaped against the lock and hinges. A dismal \
-    screech, as of mere animal terror, rang from the cabinet. ", 300, temperature=0.8))
+    print(generate("\nPoole swung the axe over his shoulder; the blow shook the building, and the red baize door leaped against the lock and hinges. A dismal screech, as of mere animal terror, rang from the cabinet. ", 300, temperature=0.8))
