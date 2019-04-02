@@ -6,7 +6,7 @@ Utilized few English novels for training and evaluating the model.
 
 Utilized PyTorch framework for development. Used a NVIDIA GeForce GTX 1080 Ti GPU machine to facilitate training of the model.
 
-The reduction in training loss against number of epochs the model is trained for is shown below. The model achieves an average validation perplexity of approximately 58.
+The reduction in training loss against number of epochs the model is trained for is shown below. The model achieves an average validation perplexity of approximately 67.
 
 The trained model is available as "model_generate.pt".
 
