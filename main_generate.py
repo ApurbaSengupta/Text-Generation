@@ -304,13 +304,13 @@ if __name__ == "__main__":
             loss_avg = 0.
             perplexity_avg = 0.
 
-    plt.figure()
-    plt.plot(all_losses)
-    plt.show()
+#     plt.figure()
+#     plt.plot(all_losses)
+#     plt.show()
 
-    plt.figure()
-    plt.plot(all_perplexities)
-    plt.show()
+#     plt.figure()
+#     plt.plot(all_perplexities)
+#     plt.show()
 
     # evaluation
     chunk = random_chunk(500)
