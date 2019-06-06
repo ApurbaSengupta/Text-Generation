@@ -1,6 +1,6 @@
 # Text-Generation
 
-An attention-based deep neural language model using biidrectional LSTMs to generate text sequences character-by-character, given a context sequence of text.
+An attention-based deep neural language model using bidrectional LSTMs to generate text sequences character-by-character, given a context sequence of text.
 
 Utilized few English novels for training and evaluating the model.
 
